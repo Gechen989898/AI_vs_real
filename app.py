@@ -372,6 +372,7 @@ p, span, div, label {{
     overflow: hidden;
     box-shadow: 0 10px 40px -10px rgba(0,0,0,0.1);
     margin-top: 16px;
+    animation: fadeInUp 0.4s ease-out;
 }}
 
 .result-image-wrap {{
@@ -661,6 +662,161 @@ p, span, div, label {{
     font-family: 'JetBrains Mono', monospace;
 }}
 
+/* Loading Animation */
+@keyframes pulse {{
+    0%, 100% {{ opacity: 1; }}
+    50% {{ opacity: 0.5; }}
+}}
+
+@keyframes shimmer {{
+    0% {{ background-position: -200% 0; }}
+    100% {{ background-position: 200% 0; }}
+}}
+
+.loading-card {{
+    background: {bg_card};
+    border: 1px solid {border_color};
+    border-radius: 20px;
+    overflow: hidden;
+    margin-top: 16px;
+}}
+
+.loading-image {{
+    height: 300px;
+    background: linear-gradient(90deg, {bg_hover} 25%, {border_color} 50%, {bg_hover} 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+}}
+
+.loading-body {{
+    padding: 24px;
+}}
+
+.loading-title {{
+    height: 28px;
+    width: 60%;
+    background: linear-gradient(90deg, {bg_hover} 25%, {border_color} 50%, {bg_hover} 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 6px;
+    margin-bottom: 12px;
+}}
+
+.loading-subtitle {{
+    height: 16px;
+    width: 40%;
+    background: linear-gradient(90deg, {bg_hover} 25%, {border_color} 50%, {bg_hover} 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 4px;
+}}
+
+.loading-bar {{
+    height: 8px;
+    background: linear-gradient(90deg, {bg_hover} 25%, {border_color} 50%, {bg_hover} 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 100px;
+    margin: 20px 0;
+}}
+
+/* Confidence interpretation */
+.confidence-interpret {{
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    background: {bg_hover};
+    border-radius: 10px;
+    margin-top: 16px;
+    animation: fadeInUp 0.4s ease-out 0.1s both;
+}}
+
+.interpret-icon {{
+    font-size: 20px;
+}}
+
+.interpret-text {{
+    font-size: 13px;
+    color: {text_secondary};
+    line-height: 1.5;
+}}
+
+.interpret-text strong {{
+    color: {text_primary};
+}}
+
+/* Image preview with loading overlay */
+.preview-card {{
+    background: {bg_card};
+    border: 1px solid {border_color};
+    border-radius: 20px;
+    overflow: hidden;
+    margin-top: 16px;
+}}
+
+.preview-image-wrap {{
+    position: relative;
+    background: {bg_hover};
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+}}
+
+.preview-img {{
+    max-width: 100%;
+    height: auto;
+    max-height: 380px;
+    object-fit: contain;
+    border-radius: 12px;
+    filter: brightness(0.7);
+}}
+
+.preview-overlay {{
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+}}
+
+.preview-spinner {{
+    width: 48px;
+    height: 48px;
+    border: 4px solid {border_color};
+    border-top-color: {text_primary};
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}}
+
+@keyframes spin {{
+    to {{ transform: rotate(360deg); }}
+}}
+
+.preview-text {{
+    font-size: 14px;
+    font-weight: 600;
+    color: white;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}}
+
+/* Fade-in animation */
+@keyframes fadeInUp {{
+    from {{
+        opacity: 0;
+        transform: translateY(20px);
+    }}
+    to {{
+        opacity: 1;
+        transform: translateY(0);
+    }}
+}}
+
 /* Responsive */
 @media (max-width: 768px) {{
     .main .block-container {{
@@ -671,6 +827,12 @@ p, span, div, label {{
     }}
     .stats-row {{
         grid-template-columns: 1fr;
+    }}
+    .how-it-works {{
+        gap: 16px;
+    }}
+    .step-arrow {{
+        font-size: 16px;
     }}
 }}
 </style>
@@ -819,6 +981,32 @@ def img_to_b64(image, max_size=800):
     img.save(buf, format="JPEG", quality=90)
     return base64.b64encode(buf.getvalue()).decode()
 
+def get_confidence_interpretation(confidence, is_ai):
+    """Return interpretation text and icon based on confidence level"""
+    if confidence >= 90:
+        icon = "✅"
+        if is_ai:
+            text = "<strong>Very High Confidence:</strong> This image shows strong indicators of AI generation. The model is highly certain about this classification."
+        else:
+            text = "<strong>Very High Confidence:</strong> This image shows strong characteristics of a real photograph. The model is highly certain about this classification."
+    elif confidence >= 75:
+        icon = "🟢"
+        if is_ai:
+            text = "<strong>High Confidence:</strong> This image likely contains AI-generated elements. Most visual patterns align with known AI generators."
+        else:
+            text = "<strong>High Confidence:</strong> This image appears to be a genuine photograph with natural characteristics."
+    elif confidence >= 60:
+        icon = "🟡"
+        if is_ai:
+            text = "<strong>Moderate Confidence:</strong> Some AI-like patterns detected, but the image may contain mixed elements or be ambiguous."
+        else:
+            text = "<strong>Moderate Confidence:</strong> The image appears real, but some elements are ambiguous. Consider reviewing manually."
+    else:
+        icon = "🟠"
+        text = "<strong>Low Confidence:</strong> The model is uncertain about this image. The result should be interpreted with caution and manual review is recommended."
+    
+    return icon, text
+
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 # NAVBAR - Using st.columns for real buttons
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -934,6 +1122,15 @@ if st.session_state.page == "home":
             </div>
             """
             st.markdown(full_html, unsafe_allow_html=True)
+            
+            # Add confidence interpretation
+            interp_icon, interp_text = get_confidence_interpretation(res["confidence"], res["is_ai"])
+            st.markdown(f'''
+            <div class="confidence-interpret">
+                <span class="interpret-icon">{interp_icon}</span>
+                <span class="interpret-text">{interp_text}</span>
+            </div>
+            ''', unsafe_allow_html=True)
         else:
             # Binary result display
             st.markdown(f"""
@@ -975,6 +1172,15 @@ if st.session_state.page == "home":
                 </div>
             </div>
             """, unsafe_allow_html=True)
+            
+            # Add confidence interpretation
+            interp_icon, interp_text = get_confidence_interpretation(res["confidence"], res["is_ai"])
+            st.markdown(f'''
+            <div class="confidence-interpret">
+                <span class="interpret-icon">{interp_icon}</span>
+                <span class="interpret-text">{interp_text}</span>
+            </div>
+            ''', unsafe_allow_html=True)
     
     # Show upload form
     else:
@@ -1006,17 +1212,36 @@ if st.session_state.page == "home":
         
         if uploaded:
             img = Image.open(uploaded)
-            with st.spinner("Analyzing..."):
-                # Always run binary classification first
-                tensor = preprocess_vit(img, vit_transform)
-                res = predict_vit_binary(vit_binary_model, tensor)
-                
-                # If AI-generated, also identify the generator
-                if res["is_ai"]:
-                    multiclass_res = predict_vit_multiclass(vit_multiclass_model, tensor)
-                    res["generator"] = multiclass_res["label"]
-                    res["generator_confidence"] = multiclass_res["confidence"]
-                    res["all_probs"] = multiclass_res["all_probs"]
+            
+            # Show image preview with loading overlay
+            preview_b64 = img_to_b64(img)
+            preview_placeholder = st.empty()
+            preview_placeholder.markdown(f'''
+            <div class="preview-card">
+                <div class="preview-image-wrap">
+                    <img src="data:image/jpeg;base64,{preview_b64}" class="preview-img"/>
+                    <div class="preview-overlay">
+                        <div class="preview-spinner"></div>
+                        <div class="preview-text">Analyzing image...</div>
+                    </div>
+                </div>
+            </div>
+            ''', unsafe_allow_html=True)
+            
+            # Run analysis - binary classification first
+            tensor = preprocess_vit(img, vit_transform)
+            res = predict_vit_binary(vit_binary_model, tensor)
+            
+            # If AI-generated, also identify the generator
+            if res["is_ai"]:
+                multiclass_res = predict_vit_multiclass(vit_multiclass_model, tensor)
+                res["generator"] = multiclass_res["label"]
+                res["generator_confidence"] = multiclass_res["confidence"]
+                res["all_probs"] = multiclass_res["all_probs"]
+            
+            # Clear preview
+            preview_placeholder.empty()
+            
             st.session_state.analyzed_image = img
             st.session_state.result = res
             # Add to history
