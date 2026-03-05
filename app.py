@@ -693,7 +693,7 @@ MULTICLASS_LABELS = ['glide', 'midjourney', 'wukong', 'adm', 'sdv5', 'vqdm', 'bi
 
 SAMPLES = [
     {"name": "Real Photo", "icon": "📷", "url": "https://images.unsplash.com/photo-1772307956262-42d4f7696876?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", "type": "real"},
-    {"name": "AI Portrait", "icon": "🤖", "url": "https://replicate.delivery/pbxt/sWeZFxVsitBmosxgKx1qKGKdvYqPPSbLKCPmokLYqouYEJjE/out-0.png", "type": "ai"},
+    {"name": "AI Portrait", "icon": "🤖", "url": "https://raw.githubusercontent.com/Gechen989898/AI_Art_vs_Human_Art/master/ai-image.jpeg", "type": "ai"},
     {"name": "Real Dog", "icon": "🐕", "url": "https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=400", "type": "real"},
 ]
 
