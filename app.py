@@ -33,6 +33,16 @@ if "history" not in st.session_state:
     st.session_state.history = []
 if "model_type" not in st.session_state:
     st.session_state.model_type = "binary"  # "binary" or "multiclass"
+if "analysis_mode" not in st.session_state:
+    st.session_state.analysis_mode = "single"  # "single", "compare", "batch"
+if "batch_results" not in st.session_state:
+    st.session_state.batch_results = []
+if "compare_images" not in st.session_state:
+    st.session_state.compare_images = [None, None]
+if "compare_results" not in st.session_state:
+    st.session_state.compare_results = [None, None]
+if "feedback_submitted" not in st.session_state:
+    st.session_state.feedback_submitted = False
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 # CSS - Theme aware
@@ -817,6 +827,225 @@ p, span, div, label {{
     }}
 }}
 
+/* Mode tabs */
+.mode-tabs {{
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 20px;
+    padding: 4px;
+    background: {bg_hover};
+    border-radius: 12px;
+    width: fit-content;
+    margin-left: auto;
+    margin-right: auto;
+}}
+
+.mode-tab {{
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    color: {text_secondary};
+    cursor: pointer;
+    transition: all 0.15s;
+    border: none;
+    background: transparent;
+}}
+
+.mode-tab:hover {{
+    color: {text_primary};
+}}
+
+.mode-tab.active {{
+    background: {bg_card};
+    color: {text_primary};
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}}
+
+/* URL input */
+.url-input-wrap {{
+    margin-top: 16px;
+}}
+
+/* Feedback button */
+.feedback-btn {{
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    background: transparent;
+    border: 1px solid {border_color};
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 500;
+    color: {text_muted};
+    cursor: pointer;
+    transition: all 0.15s;
+    margin-top: 12px;
+}}
+
+.feedback-btn:hover {{
+    border-color: {text_secondary};
+    color: {text_secondary};
+}}
+
+.feedback-success {{
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    background: #22c55e20;
+    border: 1px solid #22c55e;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #22c55e;
+    margin-top: 12px;
+}}
+
+/* Comparison view */
+.compare-container {{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 16px;
+}}
+
+.compare-card {{
+    background: {bg_card};
+    border: 1px solid {border_color};
+    border-radius: 16px;
+    overflow: hidden;
+}}
+
+.compare-image-wrap {{
+    position: relative;
+    background: {bg_hover};
+}}
+
+.compare-img {{
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+}}
+
+.compare-body {{
+    padding: 16px;
+}}
+
+.compare-badge {{
+    position: absolute;
+    top: 24px;
+    left: 24px;
+    padding: 6px 12px;
+    border-radius: 100px;
+    font-size: 12px;
+    font-weight: 600;
+}}
+
+.compare-badge.ai {{
+    background: #ef4444;
+    color: white;
+}}
+
+.compare-badge.real {{
+    background: #22c55e;
+    color: white;
+}}
+
+.compare-title {{
+    font-size: 16px;
+    font-weight: 600;
+    color: {text_primary};
+    margin-bottom: 4px;
+}}
+
+.compare-conf {{
+    font-size: 24px;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    color: {text_primary};
+}}
+
+/* Batch results */
+.batch-grid {{
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-top: 16px;
+}}
+
+.batch-card {{
+    background: {bg_card};
+    border: 1px solid {border_color};
+    border-radius: 12px;
+    overflow: hidden;
+    animation: fadeInUp 0.3s ease-out;
+}}
+
+.batch-image {{
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    background: {bg_hover};
+    display: block;
+}}
+
+.batch-body {{
+    padding: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}}
+
+.batch-label {{
+    font-size: 13px;
+    font-weight: 600;
+}}
+
+.batch-label.ai {{ color: #ef4444; }}
+.batch-label.real {{ color: #22c55e; }}
+
+.batch-conf {{
+    font-size: 14px;
+    font-weight: 600;
+    font-family: 'JetBrains Mono', monospace;
+    color: {text_primary};
+}}
+
+.batch-summary {{
+    background: {bg_card};
+    border: 1px solid {border_color};
+    border-radius: 12px;
+    padding: 20px;
+    margin-top: 16px;
+    display: flex;
+    justify-content: space-around;
+    text-align: center;
+}}
+
+.summary-stat {{
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}}
+
+.summary-number {{
+    font-size: 28px;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+}}
+
+.summary-number.ai {{ color: #ef4444; }}
+.summary-number.real {{ color: #22c55e; }}
+
+.summary-label {{
+    font-size: 12px;
+    color: {text_muted};
+    text-transform: uppercase;
+}}
+
 /* Responsive */
 @media (max-width: 768px) {{
     .main .block-container {{
@@ -1007,6 +1236,20 @@ def get_confidence_interpretation(confidence, is_ai):
     
     return icon, text
 
+def analyze_image(img, vit_transform, vit_binary_model, vit_multiclass_model):
+    """Analyze an image and return results with generator info if AI"""
+    tensor = preprocess_vit(img, vit_transform)
+    res = predict_vit_binary(vit_binary_model, tensor)
+    
+    # If AI-generated, also identify the generator
+    if res["is_ai"]:
+        multiclass_res = predict_vit_multiclass(vit_multiclass_model, tensor)
+        res["generator"] = multiclass_res["label"]
+        res["generator_confidence"] = multiclass_res["confidence"]
+        res["all_probs"] = multiclass_res["all_probs"]
+    
+    return res
+
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 # NAVBAR - Using st.columns for real buttons
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -1067,6 +1310,7 @@ if st.session_state.page == "home":
         if st.button("← Analyze another image"):
             st.session_state.analyzed_image = None
             st.session_state.result = None
+            st.session_state.feedback_submitted = False
             st.rerun()
         
         # Check if AI-generated with generator info
@@ -1131,6 +1375,21 @@ if st.session_state.page == "home":
                 <span class="interpret-text">{interp_text}</span>
             </div>
             ''', unsafe_allow_html=True)
+            
+            # Feedback button
+            if not st.session_state.feedback_submitted:
+                feedback_col1, feedback_col2, feedback_col3 = st.columns([1, 2, 1])
+                with feedback_col2:
+                    if st.button("🚩 Report Incorrect Result", use_container_width=True, key="feedback_ai"):
+                        st.session_state.feedback_submitted = True
+                        st.rerun()
+            else:
+                st.markdown(f'''
+                <div style="text-align: center; padding: 12px; background: {bg_hover}; border-radius: 8px; margin-top: 16px;">
+                    <span style="color: #22c55e;">✓</span>
+                    <span style="color: {text_secondary}; font-size: 14px;"> Thanks for your feedback! We'll use it to improve our model.</span>
+                </div>
+                ''', unsafe_allow_html=True)
         else:
             # Binary result display
             st.markdown(f"""
@@ -1181,6 +1440,21 @@ if st.session_state.page == "home":
                 <span class="interpret-text">{interp_text}</span>
             </div>
             ''', unsafe_allow_html=True)
+            
+            # Feedback button
+            if not st.session_state.feedback_submitted:
+                feedback_col1, feedback_col2, feedback_col3 = st.columns([1, 2, 1])
+                with feedback_col2:
+                    if st.button("🚩 Report Incorrect Result", use_container_width=True, key="feedback_binary"):
+                        st.session_state.feedback_submitted = True
+                        st.rerun()
+            else:
+                st.markdown(f'''
+                <div style="text-align: center; padding: 12px; background: {bg_hover}; border-radius: 8px; margin-top: 16px;">
+                    <span style="color: #22c55e;">✓</span>
+                    <span style="color: {text_secondary}; font-size: 14px;"> Thanks for your feedback! We'll use it to improve our model.</span>
+                </div>
+                ''', unsafe_allow_html=True)
     
     # Show upload form
     else:
@@ -1189,117 +1463,274 @@ if st.session_state.page == "home":
             <div class="hero-label">◉ AI Detection</div>
             <h1 class="hero-title">Real or AI?</h1>
             <p class="hero-subtitle">Upload an image and know instantly if it was created by AI or captured with a camera. If AI-generated, we'll identify the generator.</p>
-            <div class="how-it-works">
-                <div class="step">
-                    <div class="step-number">1</div>
-                    <div class="step-text">Upload image</div>
-                </div>
-                <div class="step-arrow">→</div>
-                <div class="step">
-                    <div class="step-number">2</div>
-                    <div class="step-text">AI analysis</div>
-                </div>
-                <div class="step-arrow">→</div>
-                <div class="step">
-                    <div class="step-number">3</div>
-                    <div class="step-text">Get results</div>
-                </div>
-            </div>
         </div>
         """, unsafe_allow_html=True)
         
-        uploaded = st.file_uploader("Upload an image", type=["jpg", "jpeg", "png", "webp"], label_visibility="collapsed")
+        # Mode tabs
+        mode_cols = st.columns([1, 1, 1, 1, 1])
+        with mode_cols[1]:
+            if st.button("📷 Single", key="mode_single", type="primary" if st.session_state.analysis_mode == "single" else "secondary", use_container_width=True):
+                st.session_state.analysis_mode = "single"
+                st.rerun()
+        with mode_cols[2]:
+            if st.button("⚖️ Compare", key="mode_compare", type="primary" if st.session_state.analysis_mode == "compare" else "secondary", use_container_width=True):
+                st.session_state.analysis_mode = "compare"
+                st.rerun()
+        with mode_cols[3]:
+            if st.button("📚 Batch", key="mode_batch", type="primary" if st.session_state.analysis_mode == "batch" else "secondary", use_container_width=True):
+                st.session_state.analysis_mode = "batch"
+                st.rerun()
         
-        if uploaded:
-            img = Image.open(uploaded)
+        st.markdown("<br>", unsafe_allow_html=True)
+        
+        # ═══════════════════════════════════════════
+        # SINGLE MODE
+        # ═══════════════════════════════════════════
+        if st.session_state.analysis_mode == "single":
+            # File upload
+            uploaded = st.file_uploader("Upload an image", type=["jpg", "jpeg", "png", "webp"], label_visibility="collapsed")
             
-            # Show image preview with loading overlay
-            preview_b64 = img_to_b64(img)
-            preview_placeholder = st.empty()
-            preview_placeholder.markdown(f'''
-            <div class="preview-card">
-                <div class="preview-image-wrap">
-                    <img src="data:image/jpeg;base64,{preview_b64}" class="preview-img"/>
-                    <div class="preview-overlay">
-                        <div class="preview-spinner"></div>
-                        <div class="preview-text">Analyzing image...</div>
+            # URL input
+            st.markdown(f'<p style="text-align: center; font-size: 12px; color: {text_muted}; margin: 12px 0;">Or paste an image URL</p>', unsafe_allow_html=True)
+            url_input = st.text_input("Image URL", placeholder="https://example.com/image.jpg", label_visibility="collapsed")
+            
+            img_to_analyze = None
+            
+            if uploaded:
+                img_to_analyze = Image.open(uploaded)
+            elif url_input:
+                try:
+                    img_to_analyze = load_url(url_input)
+                except Exception as e:
+                    st.error(f"Failed to load image from URL: {str(e)}")
+            
+            if img_to_analyze:
+                # Show image preview with loading overlay
+                preview_b64 = img_to_b64(img_to_analyze)
+                preview_placeholder = st.empty()
+                preview_placeholder.markdown(f'''
+                <div class="preview-card">
+                    <div class="preview-image-wrap">
+                        <img src="data:image/jpeg;base64,{preview_b64}" class="preview-img"/>
+                        <div class="preview-overlay">
+                            <div class="preview-spinner"></div>
+                            <div class="preview-text">Analyzing image...</div>
+                        </div>
                     </div>
                 </div>
+                ''', unsafe_allow_html=True)
+                
+                # Run analysis
+                res = analyze_image(img_to_analyze, vit_transform, vit_binary_model, vit_multiclass_model)
+                
+                # Clear preview
+                preview_placeholder.empty()
+                
+                st.session_state.analyzed_image = img_to_analyze
+                st.session_state.result = res
+                # Add to history
+                thumb = img_to_analyze.copy()
+                thumb.thumbnail((80, 80), Image.Resampling.LANCZOS)
+                st.session_state.history.insert(0, {
+                    "thumb": img_to_b64(thumb, 80),
+                    "label": res["label"],
+                    "is_ai": res["is_ai"],
+                    "confidence": res["confidence"]
+                })
+                st.session_state.history = st.session_state.history[:8]
+                st.rerun()
+            
+            # Sample images
+            st.markdown("""
+            <div class="divider">
+                <div class="divider-line"></div>
+                <span class="divider-text">or try a sample</span>
+                <div class="divider-line"></div>
             </div>
-            ''', unsafe_allow_html=True)
+            """, unsafe_allow_html=True)
             
-            # Run analysis - binary classification first
-            tensor = preprocess_vit(img, vit_transform)
-            res = predict_vit_binary(vit_binary_model, tensor)
-            
-            # If AI-generated, also identify the generator
-            if res["is_ai"]:
-                multiclass_res = predict_vit_multiclass(vit_multiclass_model, tensor)
-                res["generator"] = multiclass_res["label"]
-                res["generator_confidence"] = multiclass_res["confidence"]
-                res["all_probs"] = multiclass_res["all_probs"]
-            
-            # Clear preview
-            preview_placeholder.empty()
-            
-            st.session_state.analyzed_image = img
-            st.session_state.result = res
-            # Add to history
-            thumb = img.copy()
-            thumb.thumbnail((80, 80), Image.Resampling.LANCZOS)
-            st.session_state.history.insert(0, {
-                "thumb": img_to_b64(thumb, 80),
-                "label": res["label"],
-                "is_ai": res["is_ai"],
-                "confidence": res["confidence"]
-            })
-            st.session_state.history = st.session_state.history[:8]  # Keep last 8
-            st.rerun()
+            cols = st.columns(3)
+            for i, sample in enumerate(SAMPLES):
+                with cols[i]:
+                    st.markdown('<div class="sample-btn">', unsafe_allow_html=True)
+                    if st.button(f"{sample['icon']} {sample['name']}", key=f"sample_{i}", use_container_width=True):
+                        try:
+                            img = load_url(sample['url'])
+                            res = analyze_image(img, vit_transform, vit_binary_model, vit_multiclass_model)
+                            st.session_state.analyzed_image = img
+                            st.session_state.result = res
+                            thumb = img.copy()
+                            thumb.thumbnail((80, 80), Image.Resampling.LANCZOS)
+                            st.session_state.history.insert(0, {
+                                "thumb": img_to_b64(thumb, 80),
+                                "label": res["label"],
+                                "is_ai": res["is_ai"],
+                                "confidence": res["confidence"]
+                            })
+                            st.session_state.history = st.session_state.history[:8]
+                            st.rerun()
+                        except Exception as e:
+                            st.error("Failed to load sample")
+                    st.markdown('</div>', unsafe_allow_html=True)
         
-        st.markdown("""
-        <div class="divider">
-            <div class="divider-line"></div>
-            <span class="divider-text">or try a sample</span>
-            <div class="divider-line"></div>
-        </div>
-        """, unsafe_allow_html=True)
+        # ═══════════════════════════════════════════
+        # COMPARE MODE
+        # ═══════════════════════════════════════════
+        elif st.session_state.analysis_mode == "compare":
+            st.markdown(f'<p style="text-align: center; font-size: 14px; color: {text_secondary}; margin-bottom: 16px;">Upload two images to compare their AI detection results side by side</p>', unsafe_allow_html=True)
+            
+            col1, col2 = st.columns(2)
+            
+            with col1:
+                st.markdown(f'<p style="font-size: 13px; font-weight: 600; color: {text_primary}; margin-bottom: 8px;">Image 1</p>', unsafe_allow_html=True)
+                uploaded1 = st.file_uploader("Upload first image", type=["jpg", "jpeg", "png", "webp"], label_visibility="collapsed", key="compare_1")
+            
+            with col2:
+                st.markdown(f'<p style="font-size: 13px; font-weight: 600; color: {text_primary}; margin-bottom: 8px;">Image 2</p>', unsafe_allow_html=True)
+                uploaded2 = st.file_uploader("Upload second image", type=["jpg", "jpeg", "png", "webp"], label_visibility="collapsed", key="compare_2")
+            
+            if uploaded1 and uploaded2:
+                img1 = Image.open(uploaded1)
+                img2 = Image.open(uploaded2)
+                
+                with st.spinner("Analyzing both images..."):
+                    res1 = analyze_image(img1, vit_transform, vit_binary_model, vit_multiclass_model)
+                    res2 = analyze_image(img2, vit_transform, vit_binary_model, vit_multiclass_model)
+                
+                # Display comparison results using Streamlit columns
+                comp_col1, comp_col2 = st.columns(2)
+                
+                with comp_col1:
+                    b64_1 = img_to_b64(img1)
+                    badge1 = "ai" if res1["is_ai"] else "real"
+                    icon1 = "🤖" if res1["is_ai"] else "📷"
+                    
+                    card_html1 = f'''<div class="compare-card">
+                        <div class="compare-image-wrap">
+                            <img src="data:image/jpeg;base64,{b64_1}" class="compare-img"/>
+                            <div class="compare-badge {badge1}">{icon1} {res1["label"]}</div>
+                        </div>
+                        <div class="compare-body">
+                            <div class="compare-title">{res1["label"]}</div>
+                            <div class="compare-conf">{res1["confidence"]:.1f}%</div>'''
+                    
+                    if res1.get("generator"):
+                        card_html1 += f'<div style="font-size: 12px; color: {text_muted}; margin-top: 4px;">Generator: {res1["generator"]}</div>'
+                    
+                    card_html1 += '</div></div>'
+                    
+                    st.markdown(card_html1, unsafe_allow_html=True)
+                
+                with comp_col2:
+                    b64_2 = img_to_b64(img2)
+                    badge2 = "ai" if res2["is_ai"] else "real"
+                    icon2 = "🤖" if res2["is_ai"] else "📷"
+                    
+                    card_html2 = f'''<div class="compare-card">
+                        <div class="compare-image-wrap">
+                            <img src="data:image/jpeg;base64,{b64_2}" class="compare-img"/>
+                            <div class="compare-badge {badge2}">{icon2} {res2["label"]}</div>
+                        </div>
+                        <div class="compare-body">
+                            <div class="compare-title">{res2["label"]}</div>
+                            <div class="compare-conf">{res2["confidence"]:.1f}%</div>'''
+                    
+                    if res2.get("generator"):
+                        card_html2 += f'<div style="font-size: 12px; color: {text_muted}; margin-top: 4px;">Generator: {res2["generator"]}</div>'
+                    
+                    card_html2 += '</div></div>'
+                    
+                    st.markdown(card_html2, unsafe_allow_html=True)
         
-        cols = st.columns(3)
-        for i, sample in enumerate(SAMPLES):
-            with cols[i]:
-                st.markdown('<div class="sample-btn">', unsafe_allow_html=True)
-                if st.button(f"{sample['icon']} {sample['name']}", key=f"sample_{i}", use_container_width=True):
-                    try:
-                        img = load_url(sample['url'])
-                        # Always run binary classification first
-                        tensor = preprocess_vit(img, vit_transform)
-                        res = predict_vit_binary(vit_binary_model, tensor)
-                        
-                        # If AI-generated, also identify the generator
-                        if res["is_ai"]:
-                            multiclass_res = predict_vit_multiclass(vit_multiclass_model, tensor)
-                            res["generator"] = multiclass_res["label"]
-                            res["generator_confidence"] = multiclass_res["confidence"]
-                            res["all_probs"] = multiclass_res["all_probs"]
-                        st.session_state.analyzed_image = img
-                        st.session_state.result = res
-                        # Add to history
-                        thumb = img.copy()
-                        thumb.thumbnail((80, 80), Image.Resampling.LANCZOS)
-                        st.session_state.history.insert(0, {
-                            "thumb": img_to_b64(thumb, 80),
-                            "label": res["label"],
-                            "is_ai": res["is_ai"],
-                            "confidence": res["confidence"]
-                        })
-                        st.session_state.history = st.session_state.history[:8]
-                        st.rerun()
-                    except Exception as e:
-                        st.error("Failed to load sample")
-                st.markdown('</div>', unsafe_allow_html=True)
+        # ═══════════════════════════════════════════
+        # BATCH MODE
+        # ═══════════════════════════════════════════
+        elif st.session_state.analysis_mode == "batch":
+            st.markdown(f'<p style="text-align: center; font-size: 14px; color: {text_secondary}; margin-bottom: 16px;">Upload multiple images at once for batch analysis</p>', unsafe_allow_html=True)
+            
+            uploaded_files = st.file_uploader(
+                "Upload images", 
+                type=["jpg", "jpeg", "png", "webp"], 
+                accept_multiple_files=True,
+                label_visibility="collapsed"
+            )
+            
+            if uploaded_files:
+                if st.button("🔍 Analyze All", type="primary", use_container_width=True):
+                    batch_results = []
+                    progress_bar = st.progress(0)
+                    
+                    for idx, uploaded in enumerate(uploaded_files):
+                        try:
+                            img = Image.open(uploaded)
+                            res = analyze_image(img, vit_transform, vit_binary_model, vit_multiclass_model)
+                            batch_results.append({
+                                "image": img,
+                                "b64": img_to_b64(img, 300),
+                                "result": res,
+                                "filename": uploaded.name
+                            })
+                        except Exception as e:
+                            batch_results.append({
+                                "image": None,
+                                "b64": None,
+                                "result": {"error": str(e)},
+                                "filename": uploaded.name
+                            })
+                        progress_bar.progress((idx + 1) / len(uploaded_files))
+                    
+                    st.session_state.batch_results = batch_results
+                    progress_bar.empty()
+                    st.rerun()
+            
+            # Show batch results
+            if st.session_state.batch_results:
+                results = st.session_state.batch_results
+                ai_count = sum(1 for r in results if r["result"].get("is_ai", False))
+                real_count = len(results) - ai_count
+                
+                # Summary
+                st.markdown(f'''
+                <div class="batch-summary">
+                    <div class="summary-stat">
+                        <div class="summary-number">{len(results)}</div>
+                        <div class="summary-label">Total Images</div>
+                    </div>
+                    <div class="summary-stat">
+                        <div class="summary-number ai">{ai_count}</div>
+                        <div class="summary-label">AI Generated</div>
+                    </div>
+                    <div class="summary-stat">
+                        <div class="summary-number real">{real_count}</div>
+                        <div class="summary-label">Real Photos</div>
+                    </div>
+                </div>
+                ''', unsafe_allow_html=True)
+                
+                # Grid of results
+                cols = st.columns(2)
+                for idx, item in enumerate(results):
+                    if item["b64"] and "error" not in item["result"]:
+                        res = item["result"]
+                        label_class = "ai" if res["is_ai"] else "real"
+                        icon = "🤖" if res["is_ai"] else "📷"
+                        with cols[idx % 2]:
+                            st.markdown(f'''
+                            <div class="batch-card">
+                                <img src="data:image/jpeg;base64,{item["b64"]}" class="batch-image"/>
+                                <div class="batch-body">
+                                    <div class="batch-label {label_class}">{icon} {res["label"]}</div>
+                                    <div class="batch-conf">{res["confidence"]:.1f}%</div>
+                                </div>
+                            </div>
+                            ''', unsafe_allow_html=True)
+                
+                if st.button("🗑️ Clear Results", use_container_width=True):
+                    st.session_state.batch_results = []
+                    st.rerun()
         
         # History section
-        if st.session_state.history:
+        if st.session_state.history and st.session_state.analysis_mode == "single":
             items_html = ""
             for item in st.session_state.history:
                 label_class = "ai" if item["is_ai"] else "real"
