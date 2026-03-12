@@ -114,8 +114,8 @@ AI_Art_vs_Human_Art/
 ### Setup
 
 ```bash
-git clone git@github.com:Gechen989898/AI_Art_vs_Human_Art.git
-cd AI_Art_vs_Human_Art
+git clone https://github.com/Gechen989898/AI_vs_real.git
+cd AI_vs_real
 
 python -m venv .venv
 source .venv/bin/activate
