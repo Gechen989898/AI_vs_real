@@ -14,7 +14,7 @@ This repository combines three parts of the project in one workspace:
 
 The current application uses Vision Transformer (ViT) models hosted on Hugging Face for inference. The app first performs binary classification (`AI Generated` vs `Real Image`) and, when the image is classified as AI-generated, runs a multiclass generator classifier.
 
-## Key Features
+## Key Features of the Streamlit App
 
 - Single-image analysis from local upload or image URL
 - Side-by-side comparison mode for two images
